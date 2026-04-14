@@ -1,62 +1,122 @@
-# 🔧 Rowerowy Mechanik — PWA na Androida
+# 🔧 Rowerowy Mechanik — PWA z autoryzacją i AI
 
-## Co to jest
-Progresywna aplikacja webowa (PWA) — baza wiedzy mechanika rowerowego.
-Działa jak natywna apka na Androidzie, offline (poza funkcją AI).
+## Architektura
+
+```
+Android (PWA)  ──→  Cloudflare Worker  ──→  OpenRouter API
+                    (auth + proxy)
+GitHub Pages         Cloudflare (free)       Twój klucz
+```
 
 ## Pliki
+
+| Plik | Gdzie | Opis |
+|------|-------|------|
+| `index.html` | GitHub Pages | Główna aplikacja PWA |
+| `manifest.json` | GitHub Pages | Konfiguracja PWA |
+| `sw.js` | GitHub Pages | Service worker (offline) |
+| `worker.js` | Cloudflare Workers | Backend: auth + AI proxy |
+
+---
+
+## KROK 1: Cloudflare Worker (backend)
+
+### 1a. Załóż konto Cloudflare (darmowe)
+→ https://dash.cloudflare.com/sign-up
+
+### 1b. Stwórz Worker
+1. Zaloguj się do **Cloudflare Dashboard**
+2. Menu po lewej: **Workers & Pages**
+3. Kliknij **Create**  → **Create Worker**
+4. Nazwa: `bike-mechanic` → kliknij **Deploy**
+5. Po deployu kliknij **Edit Code**
+6. **Usuń cały domyślny kod** i wklej zawartość pliku `worker.js`
+7. Kliknij **Deploy**
+
+### 1c. Ustaw zmienne środowiskowe (sekrety)
+1. W ustawieniach Workera: **Settings → Variables and Secrets**
+2. Kliknij **Add** i dodaj TYPE: **Secret** dla każdej zmiennej:
+
+| Nazwa | Wartość | Opis |
+|-------|---------|------|
+| `ALLOWED_PHONES` | `+48501234567,+48602345678` | Lista numerów z dostępem (oddzielone przecinkami) |
+| `OPENROUTER_KEY` | `sk-or-v1-twoj-klucz` | Twój klucz OpenRouter |
+| `AUTH_SECRET` | `losowy-ciag-32-znaki` | Klucz szyfrowania tokenów (wygeneruj np. na https://randomkeygen.com — "CodeIgniter Encryption Keys") |
+
+3. Kliknij **Deploy** aby zastosować zmienne
+
+### 1d. Zanotuj adres Workera
+Po deployu adres będzie wyglądał tak:
 ```
-index.html     ← główna aplikacja (cała logika w jednym pliku)
-manifest.json  ← konfiguracja PWA (nazwa, ikona, kolory)
-sw.js          ← service worker (offline + cache)
+https://bike-mechanic.TWOJA-SUBDOMENA.workers.dev
 ```
 
-## Instalacja — krok po kroku
+---
 
-### Opcja A: GitHub Pages (zalecana — darmowy HTTPS)
+## KROK 2: Zaktualizuj PWA
 
+### 2a. Wpisz adres Workera w index.html
+Otwórz `index.html` i znajdź linię:
+```javascript
+const WORKER_URL = "https://bike-mechanic.TWOJA-SUBDOMENA.workers.dev";
+```
+Zmień na swój rzeczywisty adres Workera.
+
+### 2b. Wypchnij na GitHub
 ```bash
-# 1. Stwórz nowe repo na GitHub
-#    Nazwa np. "bike-mechanic" — może być publiczne
-
-# 2. Sklonuj i wrzuć pliki
-git clone https://github.com/TWOJ-USER/bike-mechanic.git
 cd bike-mechanic
-# Skopiuj 3 pliki: index.html, manifest.json, sw.js do tego folderu
+# Nadpisz stare pliki nowymi wersjami
 git add .
-git commit -m "PWA: Rowerowy Mechanik"
+git commit -m "Dodano autoryzację i AI"
 git push
-
-# 3. Włącz GitHub Pages:
-#    → Settings → Pages → Source: "Deploy from a branch"
-#    → Branch: main, folder: / (root)
-#    → Save
-
-# 4. Po ~1 minucie apka będzie pod:
-#    https://TWOJ-USER.github.io/bike-mechanic/
 ```
 
-### Opcja B: Lokalny serwer (szybki test)
+---
 
-```bash
-# Na Ubuntu — wystarczy Python
-cd /ścieżka/do/folderu/z/plikami/
-python3 -m http.server 8080
+## KROK 3: Testuj
 
-# Otwórz: http://localhost:8080
-# Lub z telefonu w tej samej sieci: http://IP-KOMPUTERA:8080
-```
+1. Otwórz `https://TWOJ-USER.github.io/bike-mechanic/`
+2. Wpisz numer telefonu z listy `ALLOWED_PHONES`
+3. Powinieneś zobaczyć bazę wiedzy
+4. Kliknij "Zapytaj AI" na dowolnej karcie — powinno odpowiedzieć
 
-## Instalacja na telefonie (Android)
+---
 
-1. Otwórz link w **Chrome** na Androidzie
-2. Chrome pokaże baner **"Dodaj do ekranu głównego"**
-   - Jeśli nie → kliknij menu (⋮) → **"Zainstaluj aplikację"** lub **"Dodaj do ekranu głównego"**
-3. Apka pojawi się na ekranie głównym jak zwykła aplikacja
-4. Działa bez paska adresu, w trybie pełnoekranowym
-5. **Baza wiedzy działa offline** — przycisk "Zapytaj AI" wymaga internetu
+## Zarządzanie dostępem
 
-## Aktualizacja
+### Dodanie nowego użytkownika
+1. Cloudflare Dashboard → Workers → `bike-mechanic` → Settings → Variables
+2. Edytuj `ALLOWED_PHONES` — dodaj numer z przecinkiem
+3. Deploy
 
-Edytuj `index.html`, zmień wersję cache w `sw.js` (linia `CACHE_NAME`),
-push na GitHub. Apka zaktualizuje się automatycznie przy następnym otwarciu.
+### Format numerów
+Numery muszą być w formacie: `+48XXXXXXXXX` (z kierunkowym, bez spacji)
+Użytkownicy wpisują numer w tym samym formacie.
+
+---
+
+## Koszty
+
+| Element | Koszt |
+|---------|-------|
+| GitHub Pages | ✅ Darmowe |
+| Cloudflare Workers | ✅ Darmowe (100 000 zapytań/dzień) |
+| OpenRouter | 💰 Wg zużycia (Claude Sonnet ~$3/1M tokenów) |
+
+Typowe użycie: kilka zapytań AI dziennie = grosze miesięcznie.
+
+---
+
+## Troubleshooting
+
+**"Brak dostępu" przy logowaniu:**
+- Sprawdź format numeru (musi być identyczny z `ALLOWED_PHONES`)
+- Sprawdź czy zmienne w Cloudflare zostały zdeploy'owane
+
+**"Błąd połączenia z serwerem":**
+- Sprawdź adres `WORKER_URL` w `index.html`
+- Sprawdź czy Worker jest aktywny w Cloudflare Dashboard
+
+**AI nie odpowiada:**
+- Sprawdź `OPENROUTER_KEY` w Cloudflare
+- Sprawdź saldo OpenRouter
