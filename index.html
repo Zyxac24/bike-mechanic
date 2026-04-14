@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f1c0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="description" content="Asystent napraw rowerowych — baza wiedzy mechanika">
+<title>🔧 Rowerowy Mechanik</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔧</text></svg>">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080e08;--bg2:#0f1c0f;--bg3:#1a2e1a;
+  --border:#1e3a1e;--border2:#2a4a2a;
+  --text:#d4e6d4;--text2:#c8e0c8;--text3:#a8c8a8;--text4:#6b8a6b;--text5:#5a7a5a;
+  --green:#3d7a3d;--green2:#2d5a2d;--green3:#4a9e5c;
+}
+body{
+  font-family:'Segoe UI','Helvetica Neue',system-ui,sans-serif;
+  background:linear-gradient(160deg,var(--bg) 0%,#0c180c 40%,#101a12 100%);
+  color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent;
+}
+.header{
+  background:linear-gradient(135deg,var(--bg2),var(--bg3));
+  border-bottom:1px solid var(--border2);padding:16px;
+  position:sticky;top:0;z-index:10;
+}
+.header-top{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.logo{
+  width:40px;height:40px;background:linear-gradient(135deg,var(--green2),var(--green));
+  border-radius:11px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;box-shadow:0 2px 12px rgba(45,90,45,.35);flex-shrink:0;
+}
+.header h1{font-size:17px;font-weight:700;color:#c8ecc8}
+.header .sub{font-size:11px;color:#5a8a5a;margin-top:1px}
+.search{
+  width:100%;background:rgba(20,40,20,.6);border:1px solid var(--border2);
+  border-radius:12px;padding:10px 14px;color:var(--text);font-size:14px;
+  outline:none;font-family:inherit;margin-bottom:12px;
+}
+.search:focus{border-color:var(--green)}
+.search::placeholder{color:#4a6a4a}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex-shrink:0;padding:6px 14px;border-radius:20px;border:1px solid var(--border);
+  background:transparent;color:var(--text4);font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.tab.active{border-color:var(--green);background:rgba(45,90,45,.3);color:#b8e6b8}
+.content{padding:16px 12px 80px}
+.cat-header{display:flex;align-items:center;gap:8px;margin-bottom:10px;padding-left:4px}
+.cat-header .icon{font-size:18px}
+.cat-header .name{font-weight:700;font-size:15px}
+.cat-header .count{
+  font-size:11px;color:var(--text5);background:rgba(30,50,30,.4);
+  padding:1px 8px;border-radius:10px;
+}
+.cards{display:flex;flex-direction:column;gap:8px;margin-bottom:24px}
+.card{
+  background:rgba(18,28,18,.85);border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;transition:all .3s;
+}
+.card.expanded{box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.card-head{
+  padding:14px 16px;cursor:pointer;display:flex;
+  justify-content:space-between;align-items:center;gap:10px;
+}
+.card-title{font-weight:700;font-size:14.5px;color:var(--text);margin-bottom:6px}
+.card-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 10px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.3px;
+}
+.meta-tag{font-size:11px;color:var(--text4)}
+.arrow{font-size:18px;transition:transform .3s}
+.card.expanded .arrow{transform:rotate(180deg)}
+.card-body{padding:0 16px 16px;animation:fadeIn .3s ease}
+.tools-box{
+  background:rgba(30,50,30,.5);border-radius:10px;padding:10px 14px;margin-bottom:12px;
+}
+.section-label{
+  font-size:11px;font-weight:700;color:#8aba8a;margin-bottom:6px;
+  text-transform:uppercase;letter-spacing:.5px;
+}
+.tools-list{font-size:13px;color:var(--text3);line-height:1.6}
+.steps{margin-bottom:12px}
+.step{display:flex;gap:10px;margin-bottom:8px;font-size:13.5px;line-height:1.5;color:var(--text2)}
+.step-num{
+  flex-shrink:0;width:22px;height:22px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:11px;font-weight:700;margin-top:1px;
+}
+.tip-box{
+  background:rgba(60,50,20,.3);border:1px solid rgba(196,163,90,.2);
+  border-radius:10px;padding:10px 14px;margin-bottom:12px;
+}
+.tip-box .section-label{color:#c4a35a}
+.tip-box p{font-size:13px;color:#c8c0a0;line-height:1.55}
+.test-box{
+  background:rgba(30,60,30,.3);border:1px solid rgba(74,158,92,.2);
+  border-radius:10px;padding:10px 14px;margin-bottom:12px;
+}
+.test-box .section-label{color:var(--green3)}
+.test-box p{font-size:13px;color:#a8d4a8;line-height:1.55}
+.ai-btn{
+  width:100%;padding:10px;border-radius:10px;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all .2s;border:1px solid;
+}
+.ai-btn:hover{filter:brightness(1.2)}
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;
+  align-items:flex-end;justify-content:center;z-index:100;animation:fadeIn .2s;
+}
+.modal{
+  width:100%;max-width:600px;max-height:80vh;
+  background:linear-gradient(135deg,var(--bg2),#162516);
+  border-top:2px solid var(--green);border-radius:20px 20px 0 0;
+  padding:20px 16px;overflow-y:auto;animation:slideUp .3s ease;
+}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-title{font-size:14px;font-weight:700;color:#b8e6b8}
+.modal-close{
+  background:rgba(90,45,45,.3);border:1px solid rgba(180,90,90,.3);
+  color:#c47a7a;width:30px;height:30px;border-radius:8px;cursor:pointer;
+  font-size:16px;display:flex;align-items:center;justify-content:center;
+}
+.modal-body{font-size:14px;line-height:1.6;color:var(--text2);white-space:pre-wrap}
+.dots{display:flex;justify-content:center;gap:6px;padding:30px}
+.dot{
+  width:8px;height:8px;border-radius:50%;background:var(--green);
+}
+.dot:nth-child(1){animation:bounce 1.2s ease-in-out 0s infinite}
+.dot:nth-child(2){animation:bounce 1.2s ease-in-out .15s infinite}
+.dot:nth-child(3){animation:bounce 1.2s ease-in-out .3s infinite}
+.empty{text-align:center;padding:40px;color:var(--text5)}
+.offline-badge{
+  display:none;background:#c4a35a22;border:1px solid #c4a35a44;color:#c4a35a;
+  padding:4px 12px;border-radius:8px;font-size:11px;font-weight:600;
+}
+body.offline .offline-badge{display:inline-block}
+body.offline .ai-btn{opacity:.4;pointer-events:none}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="logo">🔧</div>
+    <div>
+      <h1>Rowerowy Mechanik</h1>
+      <div class="sub">
+        Baza wiedzy • <span id="totalCards">0</span> kart napraw
+        <span class="offline-badge">offline</span>
+      </div>
+    </div>
+  </div>
+  <input class="search" id="searchInput" type="text" placeholder="🔍 Szukaj... (np. łańcuch, hamulce, klocki)">
+  <div class="tabs" id="tabs"></div>
+</div>
+
+<div class="content" id="content"></div>
+
+<!-- Modal AI -->
+<div class="overlay" id="modal" style="display:none" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">🤖 AI</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// BAZA WIEDZY
+// ═══════════════════════════════════════════════════════════════
+const DB=[
+{id:"drivetrain",icon:"⛓️",name:"Napęd",color:"#4a9e5c",cards:[
+{title:"Czyszczenie i smarowanie łańcucha",difficulty:1,time:"15-20 min",frequency:"Co 100-200 km",
+tools:["Odtłuszczacz","Smar do łańcucha (mokry lub suchy)","Szmata","Szczotka / stara szczoteczka"],
+steps:["Ustaw rower na stojaku lub odwróć go","Nałóż odtłuszczacz na łańcuch obracając pedały do tyłu (3-4 obroty)","Wyczyść łańcuch szmatą — obejmij go i obracaj pedały","Wyczyść szczotką zębatki kasety i przerzutek","Poczekaj aż łańcuch wyschnie (5-10 min)","Nałóż smar — jedna kropla na każde ogniwo, obracając pedały powoli","Przetrzyj nadmiar smaru czystą szmatą","Przebiegnij przez wszystkie biegi kilka razy"],
+tips:"Smar mokry — deszcz/błoto (lepiej się trzyma, ale zbiera brud). Smar suchy — suche warunki. Nigdy nie używaj WD-40 jako smaru do łańcucha!",
+test:"Łańcuch lekko wilgotny od smaru, nie kapie. Przy pedałowaniu cisza."},
+{title:"Kontrola zużycia łańcucha",difficulty:1,time:"2 min",frequency:"Co 500 km",
+tools:["Miernik zużycia łańcucha (chain checker)"],
+steps:["Włóż haczyk chain checkera w ogniwo łańcucha","Sprawdź stronę 0.5% — jeśli wchodzi między ogniwa → łańcuch do wymiany","Sprawdź stronę 0.75% — jeśli wchodzi → wymień łańcuch I kasetę","Jeśli żadna strona nie wchodzi → łańcuch OK"],
+tips:"Łańcuchy 11 i 12-speed zużywają się szybciej. Przy 0.5% wymieniasz tylko łańcuch. Przy 0.75% musisz wymienić też kasetę.",
+test:"Nowy łańcuch nie powinien przeskakiwać na żadnym biegu."},
+{title:"Wymiana łańcucha",difficulty:2,time:"20-30 min",frequency:"Co 2000-3000 km",
+tools:["Narzędzie do łańcucha (chain tool)","Nowy łańcuch (kompatybilny z liczbą biegów)","Quick link / spinka","Szczypce do quick-linków (opcjonalnie)"],
+steps:["Ustaw łańcuch na najmniejszej zębatce z przodu i z tyłu","Użyj chain tool aby wycisnąć pin i rozłączyć stary łańcuch","Przeprowadź nowy łańcuch przez przerzutki — uwaga na rolki!","Dobierz długość: największa zębatka przód + tył, dodaj 2 ogniwa zapasu","Skróć łańcuch chain toolem","Połącz quick linkiem — zatrzaśnij mocnym naciśnięciem pedalów"],
+tips:"⚠️ Łańcuch 10-speed NIE pasuje do kasety 11-speed! Quick link też musi odpowiadać liczbie biegów.",
+test:"Przebiegnij przez wszystkie biegi. Brak przeskakiwania i szarpania."},
+{title:"Wymiana kasety",difficulty:3,time:"20-30 min",frequency:"Co 5000-8000 km",
+tools:["Klucz do lock-ringu kasety","Bicz łańcuchowy (chain whip)","Klucz nastawny lub nasadowy"],
+steps:["Zdejmij tylne koło z ramy","Nałóż bicz łańcuchowy na jedną z większych zębatek — trzymaj w miejscu","Nałóż klucz do lock-ringu i odkręć PRZECIWNIE do ruchu wskazówek zegara","Zdejmij lock-ring, ściągnij zębatki z freehuba","Zanotuj kolejność zębatek i podkładek!","Oczyść freehub i nałóż cienką warstwę smaru","Nałóż nową kasetę — zwróć uwagę na wpust (jeden rowek jest szerszy)","Dokręć lock-ring momentem 40 Nm"],
+tips:"Kaseta Shimano nie pasuje na freehub SRAM XD. Przy wymianie kasety warto wymienić łańcuch.",
+test:"Przerzutka precyzyjnie wchodzi na każdy bieg. Brak przeskakiwania."}
+]},
+{id:"brakes",icon:"🛑",name:"Hamulce",color:"#c45454",cards:[
+{title:"Wymiana klocków hamulcowych (tarcze)",difficulty:2,time:"15-20 min",frequency:"Co 1000-3000 km",
+tools:["Klucz imbusowy 3mm lub 4mm","Nowe klocki (kompatybilne z zaciskem)","Alkohol izopropylowy","Czysta szmata"],
+steps:["Zdejmij koło","Wyjmij zawleczkę lub śrubę blokującą klocki","Wysuń stare klocki z zacisku (zapamiętaj orientację + sprężynka!)","Oczyść zacisk alkoholem izopropylowym","Wsuń nowe klocki ze sprężynką rozdzielającą","Zabezpiecz zawleczką/śrubą","Załóż koło i naciśnij klamkę kilka razy","Sprawdź czy tarcza kręci się swobodnie"],
+tips:"⚠️ NIGDY nie dotykaj klocków palcami — tłuszcz je zanieczyszcza. Nie ściskaj klamki bez tarczy w zacisku!",
+test:"Hamulec łapie zdecydowanie. Brak piszczenia. Tarcza kręci się bez ocierania."},
+{title:"Centrowanie zacisku hamulcowego",difficulty:2,time:"10-15 min",frequency:"Gdy tarcza ociera o klocki",
+tools:["Klucz imbusowy 5mm","Latarka lub telefon z latarką"],
+steps:["Poluzuj obie śruby mocujące zacisk (nie odkręcaj do końca!)","Ściśnij mocno klamkę hamulca i trzymaj","Trzymając klamkę, dokręć obie śruby zacisku równomiernie","Puść klamkę","Podświetl latarką szczelinę — powinna być równa po obu stronach","Jeśli nadal ociera — poluzuj jedną śrubę i delikatnie koryguj pozycję"],
+tips:"Metoda z latarką to najłatwiejszy sposób wizualnej kontroli. Szczelina ok. 0.25-0.5mm po obu stronach.",
+test:"Tarcza nie ociera przy obrocie koła. Brak rytmicznego szurgania."},
+{title:"Odpowietrzanie hamulców hydraulicznych",difficulty:4,time:"30-45 min",frequency:"Co sezon lub gdy klamka jest gąbczasta",
+tools:["Zestaw do bleedingu (specyficzny dla marki!)","Płyn: olej mineralny (Shimano) LUB DOT (SRAM)","Szmaty","Rękawiczki nitrylowe","Alkohol izopropylowy"],
+steps:["⚠️ Shimano = olej mineralny, SRAM = DOT. NIE MIESZAJ!","Zdejmij koło i wyjmij klocki (zabezpiecz tłoczki blokadą)","Zamontuj strzykawkę z płynem na zacisku (dół)","Zamontuj drugą strzykawkę/zbiornik na klamce (góra)","Powoli wtłaczaj płyn z dołu do góry — bąbelki uciekną ku górze","Obserwuj czy w strzykawce górnej nie ma bąbelków","Gdy płyn wychodzi czysty — zamknij układ","Zamontuj klocki i koło, naciśnij klamkę kilka razy"],
+tips:"⚠️ DOT jest żrący — chroń lakier i oczy! Używaj zestawu dedykowanego dla swojej marki. Jeśli nie czujesz się pewnie — oddaj do serwisu.",
+test:"Klamka twarda i zdecydowana. Zero gąbczastości. Zero przecieków."},
+{title:"Prostowanie tarczy hamulcowej",difficulty:2,time:"10-15 min",frequency:"Gdy tarcza jest pogięta",
+tools:["Narzędzie do prostowania tarcz lub klucz nastawny","Latarka"],
+steps:["Zakręć kołem i znajdź miejsce bicia — zaznacz markerem","Chwyć tarczę narzędziem w zaznaczonym miejscu","Delikatnie naciśnij w przeciwnym kierunku niż wygięcie","Zakręć kołem i sprawdź — powtarzaj aż tarcza kręci się prosto"],
+tips:"Prostuj BARDZO delikatnie — 5 małych korekt > 1 mocne naciśnięcie. Nie dotykaj tarczy brudnymi rękoma.",
+test:"Tarcza kręci się bez rytmicznego ocierania."}
+]},
+{id:"gears",icon:"⚙️",name:"Przerzutki",color:"#5a8fc4",cards:[
+{title:"Regulacja przerzutki tylnej — indeksowanie",difficulty:3,time:"15-30 min",frequency:"Gdy biegi nie wchodzą precyzyjnie",
+tools:["Śrubokręt krzyżowy (śruby H/L)","Klucz imbusowy 5mm"],
+steps:["Ustaw łańcuch na najmniejszej zębatce (najwyższy bieg)","Sprawdź śrubę H — rolka pod najmniejszą zębatką","Przełóż na największą i sprawdź śrubę L","Wróć na najmniejszą zębatkę","Biegi nie wchodzą w górę → podkręć bębenek PRZECIWNIE do wskazówek (zwiększasz napięcie)","Biegi nie schodzą w dół → odkręć bębenek","Reguluj po 1/4 obrotu, testuj każdą zmianę"],
+tips:"Najpierw sprawdź hak przerzutkowy (popatrz z tyłu). Sprawdź też stan linki i pancerza.",
+test:"Czyste wchodzenie na każdy bieg w obu kierunkach."},
+{title:"Regulacja śruby B-tension",difficulty:2,time:"5-10 min",frequency:"Po wymianie kasety lub problemy z największą zębatką",
+tools:["Śrubokręt krzyżowy"],
+steps:["Przełóż na największą zębatkę z tyłu","Sprawdź szczelinę między górną rolką a zębatką (ok. 5-6mm)","Za blisko → dokręć B-tension","Za daleko → odkręć B-tension"],
+tips:"Za mała szczelina = szarpanie. Za duża = wolne przerzucanie.",
+test:"Płynne wchodzenie na największą zębatkę."},
+{title:"Wymiana linki i pancerza przerzutki",difficulty:3,time:"30-45 min",frequency:"Co sezon",
+tools:["Obcinarka do pancerzy","Nowa linka przerzutki","Nowy pancerz przerzutkowy","Końcówki (ferrule + crimps)","Klucz imbusowy 5mm","Smar teflonowy"],
+steps:["Przełóż na najmniejszą zębatkę przód i tył","Odkręć śrubę mocującą linkę na przerzutce","Wyciągnij starą linkę z manetki","Wyciągnij stary pancerz, zanotuj trasę","Przetnij nowy pancerz na takie same długości","Załóż ferrule na końce","⚠️ To musi być pancerz PRZERZUTKOWY, NIE hamulcowy!","Nasmaruj linkę smarem teflonowym","Przeprowadź linkę przez manetkę i pancerze","Naciągnij linkę i dokręć (5 Nm)","Wyreguluj indeksowanie bębenkiem","Załóż crimp na końcówkę linki"],
+tips:"Pancerz przerzutkowy ≠ hamulcowy — inna budowa! Po wymianie linka się rozciągnie — podreguluj po pierwszej jeździe.",
+test:"Wszystkie biegi czysto. Brak opóźnień."},
+{title:"Wymiana haka przerzutkowego",difficulty:2,time:"15-20 min",frequency:"Po upadku gdy hak jest pogięty",
+tools:["Klucz imbusowy 5mm","Nowy hak (specyficzny dla ramy!)"],
+steps:["Przełóż na najmniejszą zębatkę","Odkręć przerzutkę z haka","Odepnij linkę","Odkręć hak z ramy (1-2 śruby)","Załóż nowy hak","Zamontuj przerzutkę i linkę","Wyreguluj przerzutkę"],
+tips:"⚠️ Hak jest SPECYFICZNY dla modelu ramy! Miej zapasowy na podróże.",
+test:"Rolki przerzutki w linii z zębatkami kasety."}
+]},
+{id:"wheels",icon:"🛞",name:"Koła i opony",color:"#c4a35a",cards:[
+{title:"Naprawa przebitej dętki",difficulty:1,time:"15-20 min",frequency:"Gdy złapiesz gumę",
+tools:["Łyżki do opon (3 szt.)","Zestaw łatek lub nowa dętka","Pompka","Miska z wodą"],
+steps:["Zdejmij koło z roweru","Podważ oponę łyżkami — zacznij po przeciwnej stronie od wentyla","Wyjmij dętkę, sprawdź oponę od wewnątrz!","Napompuj dętkę i zanurz w wodzie — bąbelki pokażą dziurę","Zaznacz, osusz, zeszlifuj papierem ściernym","Nałóż klej, poczekaj 2-3 min, przyłóż łatkę i dociśnij","Lekko napompuj dętkę i włóż do opony (od wentyla)","Wciśnij oponę rękami na obręcz — unikaj łyżek!","Napompuj do właściwego ciśnienia"],
+tips:"ZAWSZE sprawdź oponę od wewnątrz — kolec może nadal tkwić! Ciśnienie gravel: zwykle 3-4.5 bar.",
+test:"Trzyma ciśnienie. Wentyl prosty. Opona równo siedzi na obręczy."},
+{title:"Montaż opon tubeless",difficulty:3,time:"30-45 min",frequency:"Przy zmianie opon / pierwszym setup'ie",
+tools:["Opony tubeless-ready","Taśma tubeless","Wentyle tubeless","Uszczelniacz (sealant)","Kompresor lub booster"],
+steps:["Oczyść obręcz i nałóż taśmę tubeless nad otworami szprych","Przeklej wentyl — dociśnij nakrętką","Nałóż oponę na obręcz (bez dętki)","Wkręć rdzeń wentyla","Użyj kompresora/boostera — usłyszysz kliknięcia usadzenia","Wykręć rdzeń wentyla, wlej sealant (30-60 ml)","Wkręć rdzeń, napompuj, obracaj koło we wszystkie strony"],
+tips:"Tubeless na gravel = niższe ciśnienie bez ryzyka snake bite. Dosypuj sealant co 3-6 miesięcy.",
+test:"Trzyma ciśnienie przez noc. Brak bąbelków na boku."},
+{title:"Centrowanie koła (truing)",difficulty:4,time:"30-60 min",frequency:"Gdy koło bije",
+tools:["Klucz do szprych (właściwy rozmiar!)","Stojak do centrowania LUB hamulce jako odniesienie","Marker"],
+steps:["Zamontuj koło w stojaku lub ramie","Zakręć i znajdź miejsce bicia — zaznacz","Bicie w PRAWO → napnij szprychy LEWE (1/4 obrotu!) i/lub poluzuj prawe","Bicie w LEWO → odwrotnie","Reguluj po 1/4 obrotu! Małe korekty!","Kontroluj po każdej regulacji","Sprawdź też bicie promieniowe (góra-dół)"],
+tips:"⚠️ Zaawansowana czynność. Mocno pogięte koło → serwis. Klucz musi być idealnego rozmiaru!",
+test:"Koło kręci się bez widocznego bicia."}
+]},
+{id:"steering",icon:"🔩",name:"Stery i kierownica",color:"#8a6dba",cards:[
+{title:"Regulacja luzu w sterach",difficulty:2,time:"10 min",frequency:"Gdy czujesz stukanie przy hamowaniu",
+tools:["Klucz imbusowy 4mm (top cap)","Klucz imbusowy 5mm (mostek)"],
+steps:["Poluzuj obie śruby zacisku mostka","Dokręcaj śrubę top cap małymi krokami","Sprawdzaj: hamulec + kołysanie przód-tył","Dokręcaj aż zniknie luz, ale kierownica obraca się swobodnie","Wycentruj mostek i dokręć śruby mostka (5-7 Nm)"],
+tips:"⚠️ Kolejność kluczowa: ZAWSZE najpierw top cap, POTEM mostek. Top cap reguluje, mostek trzyma.",
+test:"Zero luzu. Kierownica obraca się płynnie."},
+{title:"Wymiana owijki kierownicy",difficulty:1,time:"20-30 min",frequency:"Co sezon",
+tools:["Nowa owijka","Nożyczki","Taśma izolacyjna"],
+steps:["Zdejmij starą owijkę od góry","Oczyść kierownicę","Zacznij od końca — wsuń końcówkę do rury","Owijaj od dołu ku górze, nakładka 1/3 szerokości","Przy klamkach: figura ósemki","Zakończ na prostym odcinku, zabezpiecz taśmą","Wciśnij zaślepki w końce"],
+tips:"Owijaj w kierunku do siebie — dokręca się przy trzymaniu. Jednolite napięcie = brak fałd.",
+test:"Równomierna, nie przesuwa się, wygodna w chwycie."}
+]},
+{id:"saddle",icon:"🪑",name:"Siodło i sztyca",color:"#c47a5a",cards:[
+{title:"Regulacja wysokości siodła",difficulty:1,time:"5 min",frequency:"Jednorazowo + korekty",
+tools:["Klucz imbusowy 4mm lub 5mm"],
+steps:["Poluzuj zacisk sztycy","Metoda piętowa: usiądź, pięta na pedale w dole — noga prosta","Na normalnej pozycji (przodostopie) kolano lekko zgięte","Dokręć zacisk (5-7 Nm, karbon = klucz dynamometryczny!)","Sprawdź oznaczenie MIN INSERT"],
+tips:"Za nisko = ból kolan. Za wysoko = bujanie się. Karbon: pasta carbon paste + dynamometryczny!",
+test:"Kolano lekko zgięte w dole. Brak bujania bioder."}
+]},
+{id:"maintenance",icon:"📋",name:"Przeglądy",color:"#5a9e8f",cards:[
+{title:"Przegląd po 500 km",difficulty:2,time:"45-60 min",frequency:"Po pierwszych 500 km",
+tools:["Klucze imbusowe","Klucz dynamometryczny","Smar","Miernik łańcucha","Pompka"],
+steps:["Sprawdź dokręcenie WSZYSTKICH śrub","Sprawdź ciśnienie opon (gravel: 3-4.5 bar)","Sprawdź luz w sterach","Sprawdź luz w piastach","Sprawdź zużycie łańcucha","Wyczyść i nasmaruj łańcuch","Sprawdź klocki hamulcowe (grubość)","Sprawdź czy tarcze nie ocierają","Sprawdź regulację przerzutek","Sprawdź koła (bicie)","Sprawdź hamulce (siła, punkt)"],
+tips:"Po 500 km linki się rozciągną, szprychy osiądą — normalne. Podreguluj bębenkami.",
+test:"Rower cichy, biegi czyste, hamulce łapią, brak luzów."},
+{title:"Harmonogram konserwacji",difficulty:0,time:"—",frequency:"Ciągły",
+tools:[],
+steps:["🔄 PRZED JAZDĄ: ciśnienie opon, hamulce, szybkozamykacze","🔄 CO 100-200 km: czyszczenie + smarowanie łańcucha","🔄 CO 500 km: kontrola zużycia łańcucha, czyszczenie napędu","🔄 CO 2000 km / SEZON: wymiana linek i pancerzy, serwis piast","🔄 CO 5000 km: rozważ wymianę łańcucha","🔄 ROCZNIE: pełny przegląd — rama, łożyska, hamulce, koła, napęd"],
+tips:"Jazda w deszczu/błocie = skrócone interwały o 50%. Przechowuj rower w suchym miejscu.",
+test:"—"}
+]},
+{id:"tools",icon:"🧰",name:"Narzędzia",color:"#7a7a7a",cards:[
+{title:"Zestaw podstawowy — domowy mechanik",difficulty:0,time:"—",frequency:"Zakup jednorazowy",
+tools:[],
+steps:["🔧 Klucze imbusowe: 2, 2.5, 3, 4, 5, 6, 8mm","🔧 Klucz Torx T25","🔧 Pompka podłogowa z manometrem","🔧 Łyżki do opon (3 szt.)","🔧 Multitool rowerowy (na trasę)","🔧 Smar do łańcucha","🔧 Zapasowa dętka + zestaw łatek","🔧 Szmaty + odtłuszczacz","💰 Szacunkowy koszt: 200-400 PLN"],
+tips:"To minimum pozwalające na 80% drobnych napraw i bieżącą konserwację.",test:"—"},
+{title:"Zestaw rozszerzony — średniozaawansowany",difficulty:0,time:"—",frequency:"Zakup stopniowy",
+tools:[],
+steps:["🔧 Stojak serwisowy (repair stand)","🔧 Klucz dynamometryczny (2-15 Nm)","🔧 Chain tool + chain checker","🔧 Klucz do kasety + bicz łańcuchowy","🔧 Obcinarka do pancerzy","🔧 Klucz do szprych","🔧 Szczypce igłowe + śrubokręt","🔧 Pasta carbon paste","🔧 Alkohol izopropylowy","💰 Koszt: 400-800 PLN (rozłożone w czasie)"],
+tips:"Kupuj gdy potrzebujesz. Stojak i klucz dynamometryczny to najlepsze inwestycje.",test:"—"}
+]}
+];
+
+// ═══════════════════════════════════════════════════════════════
+// STAN APLIKACJI
+// ═══════════════════════════════════════════════════════════════
+let activeCategory=null;
+let searchQuery="";
+let expandedCards=new Set();
+
+const diffLabels=["Info","Łatwe","Średnie","Trudne","Zaawansowane"];
+const diffColors=["#6b9a6b","#4a9e5c","#c4a35a","#c47a5a","#c45454"];
+
+function totalCardsCount(){return DB.reduce((s,c)=>s+c.cards.length,0)}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════
+function render(){
+  document.getElementById("totalCards").textContent=totalCardsCount();
+  renderTabs();
+  renderContent();
+}
+
+function renderTabs(){
+  const t=document.getElementById("tabs");
+  let h=`<button class="tab${!activeCategory?' active':''}" onclick="setCategory(null)">Wszystko</button>`;
+  DB.forEach(c=>{
+    const act=activeCategory===c.id;
+    const style=act?`border-color:${c.color}77;background:${c.color}22;color:${c.color}`:'';
+    h+=`<button class="tab${act?' active':''}" style="${style}" onclick="setCategory('${c.id}')">${c.icon} ${c.name}</button>`;
+  });
+  t.innerHTML=h;
+}
+
+function renderContent(){
+  const cont=document.getElementById("content");
+  const filtered=getFiltered();
+  if(!filtered.length){cont.innerHTML=`<div class="empty">Brak wyników dla "${searchQuery}"</div>`;return;}
+  let h="";
+  filtered.forEach(cat=>{
+    h+=`<div class="cat-header"><span class="icon">${cat.icon}</span><span class="name" style="color:${cat.color}">${cat.name}</span><span class="count">${cat.cards.length}</span></div>`;
+    h+=`<div class="cards">`;
+    cat.cards.forEach((card,i)=>{
+      const key=cat.id+"-"+i;
+      const exp=expandedCards.has(key);
+      const lvl=Math.max(card.difficulty,1);
+      h+=`<div class="card${exp?' expanded':''}" ${exp?`style="border-color:${cat.color}66"`:''}>`
+      // head
+      h+=`<div class="card-head" onclick="toggleCard('${key}')">
+        <div style="flex:1">
+          <div class="card-title">${card.title}</div>
+          <div class="card-meta">
+            <span class="badge" style="background:${diffColors[card.difficulty]}22;border:1px solid ${diffColors[card.difficulty]}55;color:${diffColors[card.difficulty]}">
+              ${"●".repeat(lvl)}${"○".repeat(4-lvl)} ${diffLabels[card.difficulty]}
+            </span>
+            ${card.time!=="—"?`<span class="meta-tag">⏱ ${card.time}</span>`:''}
+            ${card.frequency&&card.frequency!=="—"?`<span class="meta-tag">🔄 ${card.frequency}</span>`:''}
+          </div>
+        </div>
+        <span class="arrow" style="color:${cat.color}">▾</span>
+      </div>`;
+      // body
+      if(exp){
+        h+=`<div class="card-body">`;
+        if(card.tools&&card.tools.length){
+          h+=`<div class="tools-box"><div class="section-label">🔧 Potrzebne narzędzia</div><div class="tools-list">${card.tools.join(" • ")}</div></div>`;
+        }
+        h+=`<div class="steps"><div class="section-label" style="margin-bottom:8px">Kroki</div>`;
+        card.steps.forEach((s,si)=>{
+          const isIcon=s.startsWith("🔧")||s.startsWith("🔄")||s.startsWith("💰");
+          h+=`<div class="step"><span class="step-num" style="background:${cat.color}25;color:${cat.color}">${isIcon?'':si+1}</span><span>${s}</span></div>`;
+        });
+        h+=`</div>`;
+        if(card.tips){
+          h+=`<div class="tip-box"><div class="section-label">💡 Wskazówki</div><p>${card.tips}</p></div>`;
+        }
+        if(card.test&&card.test!=="—"){
+          h+=`<div class="test-box"><div class="section-label">✅ Test po naprawie</div><p>${card.test}</p></div>`;
+        }
+        h+=`<button class="ai-btn" style="background:${cat.color}20;border-color:${cat.color}40;color:${cat.color}" onclick="askAI('${card.title.replace(/'/g,"\\'")}')">🤖 Zapytaj AI o więcej szczegółów</button>`;
+        h+=`</div>`;
+      }
+      h+=`</div>`;
+    });
+    h+=`</div>`;
+  });
+  cont.innerHTML=h;
+}
+
+function getFiltered(){
+  if(!searchQuery.trim()){
+    if(activeCategory)return DB.filter(c=>c.id===activeCategory);
+    return DB;
+  }
+  const q=searchQuery.toLowerCase();
+  return DB.map(c=>({...c,cards:c.cards.filter(d=>
+    d.title.toLowerCase().includes(q)||
+    d.steps.some(s=>s.toLowerCase().includes(q))||
+    (d.tips&&d.tips.toLowerCase().includes(q))||
+    (d.tools&&d.tools.some(t=>t.toLowerCase().includes(q)))
+  )})).filter(c=>c.cards.length);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// AKCJE
+// ═══════════════════════════════════════════════════════════════
+function setCategory(id){activeCategory=id;searchQuery="";document.getElementById("searchInput").value="";expandedCards.clear();render()}
+function toggleCard(key){expandedCards.has(key)?expandedCards.delete(key):expandedCards.add(key);renderContent()}
+
+async function askAI(title){
+  const modal=document.getElementById("modal");
+  const body=document.getElementById("modalBody");
+  document.getElementById("modalTitle").textContent="🤖 "+title;
+  body.innerHTML=`<div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div><div style="text-align:center;color:#5a8a5a">Przygotowuję odpowiedź...</div>`;
+  modal.style.display="flex";
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:1000,
+        system:"Jesteś ekspertem mechanikiem rowerowym. Odpowiadaj po polsku, konkretnie. Podawaj częste błędy i triki profesjonalistów.",
+        messages:[{role:"user",content:`Dodatkowe szczegóły, częste błędy i profesjonalne triki: "${title}" — rower gravelowy, hamulce tarczowe hydrauliczne. Skup się na praktyce.`}]
+      })
+    });
+    const d=await r.json();
+    const txt=d.content?.filter(b=>b.type==="text").map(b=>b.text).join("\n")||"Nie udało się uzyskać odpowiedzi.";
+    body.innerHTML=`<div class="modal-body">${txt}</div>`;
+  }catch(e){
+    body.innerHTML=`<div class="modal-body">⚠️ Błąd połączenia. Baza wiedzy działa offline, ale AI wymaga internetu.</div>`;
+  }
+}
+function closeModal(){document.getElementById("modal").style.display="none"}
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+document.getElementById("searchInput").addEventListener("input",e=>{
+  searchQuery=e.target.value;if(searchQuery)activeCategory=null;
+  expandedCards.clear();render();
+});
+
+// Offline detection
+window.addEventListener("online",()=>document.body.classList.remove("offline"));
+window.addEventListener("offline",()=>document.body.classList.add("offline"));
+if(!navigator.onLine)document.body.classList.add("offline");
+
+// Service Worker
+if("serviceWorker"in navigator){
+  navigator.serviceWorker.register("sw.js").catch(()=>{});
+}
+
+render();
+</script>
+</body>
+</html>
